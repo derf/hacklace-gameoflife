@@ -105,6 +105,9 @@
     <Compile Include="animations.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="iotn4313.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

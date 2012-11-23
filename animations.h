@@ -57,9 +57,9 @@ typedef uint8_t* animation_t;
 #include "droplet.h"
 #include "psycho.h"
 #include "tv_off.h"
-#include "lady.h"
-#include "boobs.h"
-#include "thighs.h"
+//#include "lady.h"
+//#include "boobs.h"
+//#include "thighs.h"
 
 
 // list of all animations
@@ -82,10 +82,10 @@ const animation_t animation[] PROGMEM = {	arrow,
 											explode,
 											droplet,
 											psycho,
-											tv_off,
-											lady,
-											boobs,
-											thighs
+											tv_off
+											//lady,
+											//boobs,
+											//thighs
 										};
 
 #define ANIMATION_COUNT	(sizeof(animation)/sizeof(animation[0]))

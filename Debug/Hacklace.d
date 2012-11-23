@@ -22,8 +22,7 @@ Hacklace.d Hacklace.o: .././Hacklace.c \
  .././fire.h .././bounce.h .././mountainrange.h .././snow.h .././tunnel.h \
  .././wink.h .././ecg.h .././checkers.h .././tetris.h .././glider.h \
  .././hop.h .././pong.h .././house.h .././rocket.h .././rainy.h \
- .././explode.h .././droplet.h .././psycho.h .././tv_off.h .././lady.h \
- .././boobs.h .././thighs.h
+ .././explode.h .././droplet.h .././psycho.h .././tv_off.h
 
 c:\programme\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.0.65\avrtoolchain\bin\../lib/gcc/avr/4.6.2/../../../../avr/include/inttypes.h:
 
@@ -108,9 +107,3 @@ c:\programme\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.0.65\avrtoolch
 .././psycho.h:
 
 .././tv_off.h:
-
-.././lady.h:
-
-.././boobs.h:
-
-.././thighs.h:
