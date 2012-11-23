@@ -43,10 +43,10 @@ Disclaimer:			This software is provided by the copyright holder "as is" and any
  * global variables *
  ********************/
 
-uint8_t scroll_speed = 8;			// scrolling speed (0 = fastest)
-volatile uint8_t button = PB_ACK;	// button event
-uint8_t* msg_ptr = messages;		// pointer to next message in EEPROM
-uint8_t* ee_write_ptr = messages;
+uint8_t scroll_speed = 8;					// scrolling speed (0 = fastest)
+volatile uint8_t button = PB_ACK;			// button event
+uint8_t* msg_ptr = (uint8_t*) messages;		// pointer to next message in EEPROM
+uint8_t* ee_write_ptr = (uint8_t*) messages;
 
 
 /*************
@@ -129,12 +129,12 @@ void InitHardware(void)
 					Bit 3:		scrolling increment (cleared = +1 (for texts), set = +5 (for animations))
 					Bit 2..0:	scrolling speed (1 = slowest, 7 = fastest)
 ======================================================================*/
-void SetMode(uint8_t* ee_adr)
+void SetMode(const uint8_t* ee_adr)
 {
 	uint8_t mode;
 	uint8_t inc, dir, dly, spd;
 
-	mode = msg_read_byte(ee_adr);
+	mode = eeprom_read_byte(ee_adr);
 	if (mode & 0x08)	{ inc = 5; }
 		else			{ inc = 1; }
 	if (mode & 0x80)	{ dir = BIDIRECTIONAL; }
@@ -175,10 +175,10 @@ uint8_t* DisplayMessage(uint8_t* ee_adr)
 	ee_adr++;
 	dmClearDisplay();
 
-	ch = msg_read_byte(ee_adr++);
+	ch = eeprom_read_byte(ee_adr++);
 	while (ch) {
 		if (ch == '~') {					// animation
-			ch = msg_read_byte(ee_adr++);
+			ch = eeprom_read_byte(ee_adr++);
 			if (ch != '~') {
 				ch -= 'A';
 				if (ch < ANIMATION_COUNT) {
@@ -187,58 +187,28 @@ uint8_t* DisplayMessage(uint8_t* ee_adr)
 			}
 		}
 		else if (ch == 0xFF) {				// direct mode
-			ch = msg_read_byte(ee_adr++);
+			ch = eeprom_read_byte(ee_adr++);
 			while (ch != 0xFF) {
 				dmPrintByte(ch);
-				ch = msg_read_byte(ee_adr++);
+				ch = eeprom_read_byte(ee_adr++);
 			}
 		}
 		else {								// character
 			if (ch == '^') {				// special character
-				ch = msg_read_byte(ee_adr++);
+				ch = eeprom_read_byte(ee_adr++);
 				if (ch != '^') {
 					ch += 63;
 				}
 			}
 			dmPrintChar(ch);
 		}
-		ch = msg_read_byte(ee_adr++);
+		ch = eeprom_read_byte(ee_adr++);
 		if (ch) { dmPrintByte(0); }			// print a narrow space except for the last character					
 	}
-	ch = msg_read_byte(ee_adr);				// read mode byte of next message
+	ch = eeprom_read_byte(ee_adr);			// read mode byte of next message
 	if (ch)		{ return(ee_adr); }
-		else	{ return(messages); }		// restart all-over if mode byte is 0
+		else	{ return((uint8_t*) messages); }	// restart all-over if mode byte is 0
 }		
-
-
-/*======================================================================
-	Function:		SerialInput
-	Input:			none
-	Output:			none
-	Description:	Read input from serial interface.
-
-					Escape characters:
-
-					Character '^' is used to access special characters by 
-					shifting the character code of the next character by 96 
-					so that e. g. '^A' becomes char(161).
-					To enter a '^' character simply double it: '^^'
-
-					Character '~' followed by an upper case letter is used
-					to insert (animation) data from flash.
-					
-					The <TAB> character is used to enter direct mode in which 
-					the following bytes are directly written to the display 
-					memory without being decoded using the character font.
-					Direct mode is ended by 0xFF.
-======================================================================*/
-void SerialInput(void)
-{
-	uint8_t state = IDLE;
-	uint8_t ch;
-	
-	
-}
 
 
 /********
@@ -247,8 +217,6 @@ void SerialInput(void)
 
 int main(void)
 {
-	uint8_t a = 0;					// index of current animation
-	
 	InitHardware();
 	dmInit();
 	sei();							// enable interrupts
@@ -278,7 +246,7 @@ int main(void)
 			GIMSK = 0;						// disable all external interrupts (including pin change)
 			dmPrintChar(131);				// happy smiley
 			_delay_ms(500);
-			msg_ptr = DisplayMessage(messages);
+			msg_ptr = DisplayMessage((uint8_t*) messages);
 			button |= PB_ACK;
 		}
 		
@@ -407,8 +375,8 @@ ISR(USART0_RX_vect)
 			else { val <<= 4;  val += ch; }
 			break;
 		case RESET:
-			msg_ptr = messages;
-			ee_write_ptr = messages;
+			msg_ptr = (uint8_t*) messages;
+			ee_write_ptr = (uint8_t*) messages;
 			dmClearDisplay();
 			dmPrintChar(129);				// show logo
 			state = IDLE;

@@ -28,7 +28,7 @@ Disclaimer:			This software is provided by the copyright holder "as is" and any
 #define ANIMATIONS_H_
 
 
-typedef uint8_t* animation_t;
+typedef uint8_t const* animation_t;
 
 
 /******************
