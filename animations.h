@@ -57,6 +57,7 @@ typedef uint8_t const* animation_t;
 #include "droplet.h"
 #include "psycho.h"
 #include "tv_off.h"
+#include "clock.h"
 //#include "lady.h"
 //#include "boobs.h"
 //#include "thighs.h"
@@ -82,7 +83,8 @@ const animation_t animation[] PROGMEM = {	arrow,
 											explode,
 											droplet,
 											psycho,
-											tv_off
+											tv_off,
+											clock
 											//lady,
 											//boobs,
 											//thighs

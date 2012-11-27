@@ -99,9 +99,10 @@ const uint8_t messages[MSG_SIZE] EEMEM = {
 	0x6C, '~', 'R', 0x00,				// droplet
 	0x0E, '~', 'S', 0x00,				// psycho
 	0x7D, '~', 'T', 0x9D, 0x00,			// TV off
-//	0x94, '~', 'U', 0x00,				// lady
-//	0x94, '~', 'V', 0x00,				// boobs
-//	0x94, '~', 'W', 0x00,				// thighs
+	0x0D, '~', 'U', 0x00,				// clock
+//	0x94, '~', 'V', 0x00,				// lady
+//	0x94, '~', 'W', 0x00,				// boobs
+//	0x94, '~', 'X', 0x00,				// thighs
 	0x00
 };
 
