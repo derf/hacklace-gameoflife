@@ -39,6 +39,18 @@ Disclaimer:			This software is provided by the copyright holder "as is" and any
 #include "animations.h"
 
 
+/*********
+* fuses *
+*********/
+
+FUSES =
+{
+	.low = 0xE2,
+	.high = 0xDF,
+	.extended = 0xFF,
+};
+
+
 /********************
  * global variables *
  ********************/
