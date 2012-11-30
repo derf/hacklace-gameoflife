@@ -24,7 +24,7 @@ Hacklace.d Hacklace.o: .././Hacklace.c \
  .././animations/tunnel.h .././animations/wink.h .././animations/ecg.h \
  .././animations/checkers.h .././animations/tetris.h \
  .././animations/glider.h .././animations/hop.h .././animations/pong.h \
- .././animations/house.h .././animations/rocket.h .././animations/rainy.h \
+ .././animations/house.h .././animations/rocket.h .././animations/train.h \
  .././animations/explode.h .././animations/droplet.h \
  .././animations/psycho.h .././animations/tv_off.h \
  .././animations/clock.h .././animations/lady.h
@@ -103,7 +103,7 @@ c:\programme\atmel\atmel\ studio\ 6.0\extensions\atmel\avrgcc\3.4.0.65\avrtoolch
 
 .././animations/rocket.h:
 
-.././animations/rainy.h:
+.././animations/train.h:
 
 .././animations/explode.h:
 
