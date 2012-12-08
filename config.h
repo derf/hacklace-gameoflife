@@ -112,10 +112,4 @@ const uint8_t dly_conv[] PROGMEM = {0, 1, 2, 3, 5, 8, 13, 21};
 const uint8_t spd_conv[] PROGMEM = {50, 30, 18, 11, 7, 5, 3, 2};
 
 
-// debug helpers
-
-// serial input
-//#define ECHO_RXD	// if defined, each received character will be displayed on the dot matrix (using the font)
-
-
 #endif /* CONFIG_H_ */

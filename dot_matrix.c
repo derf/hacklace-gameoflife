@@ -282,7 +282,7 @@ void dmPrintByte(uint8_t byt)
 	Function:		dmPrintChar
 	Input:			character code
 	Output:			none
-	Description:	Print character to display memory at given current display cursor.
+	Description:	Print character to display memory at current display cursor.
 ======================================================================*/
 void dmPrintChar(uint8_t ch)
 {
