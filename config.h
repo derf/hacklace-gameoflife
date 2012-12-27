@@ -68,12 +68,12 @@ Disclaimer:			This software is provided by the copyright holder "as is" and any
 //		0x7F = short space (0+1 column)
 //		0x9D = long space (5+1 columns), may be used as the last frame of an animation
 const uint8_t messages[MSG_SIZE] EEMEM = {
-	0x54, 'H', 'a', 'c', 'k', 'l', 'a', 'c', 'e', ' ', '^', 'P', 0x00, 
-	0x44, ' ', 'n', 'u', 'r', ' ', '1', '0', '^', 'A', 0x9D, 0x00,
-	0x64, ' ', 'K', 'a', 'u', 'f', ' ', 'm', 'i', 'c', 'h', 0x7F, '!', '!', '!', 0x9D, 0x00,
-	0x65, ' ', 'I', ' ', '^', 'R', ' ', 'R', 'a', 'u', 'm', 'Z', 'e', 'i', 't', 'L', 'a', 'b', 'o', 'r', 0x9D, 0x00,
+	0x53, ' ', '@', 'd', 'e', 'r', 'f', 'n', 'u', 'l', 'l', 0x9d, 0x00,
+	0x34, ' ', 'p', 'e', 'n', 'i', 's', 0x9d, 0x00,
+	0x64, ' ', 'I', ' ', '^', 'R', ' ', 'C', 'h', 'a', 'o', 's', 'd', 'o', 'r', 'f', 0x9D, 0x00,
+	0x54, ' ', 'E', 'i', 'n', ' ', 'P', 'r', 'o', 'j', 'e', 'k', 't', ' ', 'd', 'e', 's', ' ' , 'S', 'h', 'a', 'c', 'k', 's', 'p', 'a', 'c', 'e', 0x9d, 0x00,
 	0xC4, 0x8B, ' ', 0x8C, ' ', 0x8E, ' ', 0x8D, 0x00,							// Monster
-	0x44, ' ', '^', 'm', ' ', '+', ' ', '^', 'n', ' ', '=', ' ', '^', 'R', 0x00,
+	0x44, ' ', '^', 'm', ' ', '+', ' ', '^', 'm', ' ', '=', ' ', '^', 'R', 0x00,
 	0x0B, 0xA3, ' ', 0xA5, ' ', 0xA6, ' ', 0xA0, ' ', 0x00,						// break-dance
 	0x04, ' ', '^', 'S', '^', 'S', '^', 'S', 0x9D, 0x00,						// turn left
 	0x04, ' ', 0x94, 0x95, 0x95, ' ',  0x94, ' ', 0x95, 0x7F, 0x94, 0x9D, 0x00,	// music
@@ -81,7 +81,7 @@ const uint8_t messages[MSG_SIZE] EEMEM = {
 	0x6C, '~', 'A', 0x00,				// arrow
 	0x0D, '~', 'B', 0x00,				// fire
 	0x4B, '~', 'C', 0x9D, 0x00,			// bounce
-	0x44, 0x9D, 'B', 'e', 'r', 'g', 'e', ' ', '~', 'D', 0x00,
+	0x84, '~', 'D', 0x00,				// creeper
 	0x4A, '~', 'E', 0x00,				// snow
 	0x3D, '~', 'F', 0x9D, 0x00,			// tunnel
 	0x5A, '~', 'G', 0x00,				// wink
@@ -98,11 +98,12 @@ const uint8_t messages[MSG_SIZE] EEMEM = {
 	0x5B, '3', '3', 0x7F, ' ', '2', '2', 0x7F, ' ', 0x7F, '1', 0x7F, '1', '~', 'Q', 0x9D, 0x00,	// explode
 	0x6C, '~', 'R', 0x00,				// droplet
 	0x0E, '~', 'S', 0x00,				// psycho
-	0x7D, '~', 'T', 0x9D, 0x00,			// TV off
-	0x0D, '~', 'U', 0x00,				// clock
-	0x94, '~', 'V', 0x00,				// lady
-//	0x94, '~', 'W', 0x00,				// boobs
-//	0x94, '~', 'X', 0x00,				// thighs
+	0x69, '~', 'T', 0x00,				// batt
+//	0x7D, '~', 'T', 0x9D, 0x00,			// TV off
+//	0x0D, '~', 'U', 0x00,				// clock
+//	0x94, '~', 'T', 0x00,				// lady
+//	0x94, '~', 'U', 0x00,				// boobs
+//	0x94, '~', 'V', 0x00,				// thighs
 	0x00
 };
 

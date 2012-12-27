@@ -40,7 +40,7 @@ typedef uint8_t const* animation_t;
 #include "animations/arrow.h"
 #include "animations/fire.h"
 #include "animations/bounce.h"
-#include "animations/mountainrange.h"
+#include "animations/creeper.h"
 #include "animations/snow.h"
 #include "animations/tunnel.h"
 #include "animations/wink.h"
@@ -56,9 +56,10 @@ typedef uint8_t const* animation_t;
 #include "animations/explode.h"
 #include "animations/droplet.h"
 #include "animations/psycho.h"
-#include "animations/tv_off.h"
-#include "animations/clock.h"
-#include "animations/lady.h"
+#include "animations/batt.h"
+//#include "animations/tv_off.h"
+//#include "animations/clock.h"
+//#include "animations/lady.h"
 //#include "animations/boobs.h"
 //#include "animations/thighs.h"
 
@@ -67,7 +68,7 @@ typedef uint8_t const* animation_t;
 const animation_t animation[] PROGMEM = {	arrow,
 											fire,
 											bounce,
-											mountainrange,
+											creeper,
 											snow,
 											tunnel,
 											wink,
@@ -83,9 +84,10 @@ const animation_t animation[] PROGMEM = {	arrow,
 											explode,
 											droplet,
 											psycho,
-											tv_off,
-											clock,
-											lady
+											batt
+											//tv_off,
+											//clock,
+											//lady,
 											//boobs,
 											//thighs
 										};

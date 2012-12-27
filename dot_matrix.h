@@ -35,7 +35,7 @@ Disclaimer:			This software is provided by the copyright holder "as is" and any
 // dot matrix display
 #define DISP_COLUMNS		5			// number of columns (range 1..8)
 #define DISP_ROWS			7			// number of rows (range 1..8)
-#define DISP_TYPE			1			// 1 = common column anode (TA), 0 = common column cathode (TC)
+#define DISP_TYPE			0			// 1 = common column anode (TA), 0 = common column cathode (TC)
 //#define DISP_UPDOWN						// if defined -> display is upside down
 #define DOT_MATRIX_TYPE		Tx07-11		// choose Tx07-11 (Kingbright) or HDSP5403 (Hewlett Packard)
 //#define DOT_MATRIX_TYPE		HDSP5403
