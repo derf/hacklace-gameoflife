@@ -7,11 +7,8 @@ PRG_TARGET 	= attiny4313
 #optimize for size
 OPTIMIZE       = -Os
 
-#FLASHCMD	= avrdude -c ponyser -P /dev/ttyS0 -v -p $(PRG_TARGET) -U flash:w:$(PRG).hex
-#FLASHEEPROMCMD	= avrdude -c ponyser -P /dev/ttyS0 -v -p $(PRG_TARGET) -U eeprom:w:$(PRG)_eeprom.hex
-
-FLASHCMD	= /home/derf/var/source/avrdude-5.11.1-deb/avrdude -c r0ket -P /dev/ttyACM0 -v -p $(PRG_TARGET) -U flash:w:$(PRG).hex
-FLASHEEPROMCMD	= /home/derf/var/source/avrdude-5.11.1-deb/avrdude -c r0ket -P /dev/ttyACM0 -v -p $(PRG_TARGET) -U eeprom:w:$(PRG)_eeprom.hex
+FLASHCMD	= avrdude -c usbasp -v -p $(PRG_TARGET) -U flash:w:$(PRG).hex
+FLASHEEPROMCMD	= avrdude -c usbasp -v -p $(PRG_TARGET) -U eeprom:w:$(PRG)_eeprom.hex
 
 SERIAL = /dev/ttyUSB0
 
