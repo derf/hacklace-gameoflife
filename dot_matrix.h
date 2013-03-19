@@ -133,6 +133,7 @@ void dmSetScrolling(uint8_t inc, uint8_t dir, uint8_t delay);
 void dmClearDisplay(void);
 void dmDisplayImage(const uint8_t* image);
 void dmPrintByte(uint8_t byt);
+void dmWakeUp();
 void dmPrintChar(uint8_t ch);
 
 // The following function was commented out to save flash memory.

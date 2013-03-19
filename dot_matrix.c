@@ -29,8 +29,8 @@ Disclaimer:			This software is provided by the copyright holder "as is" and any
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
+#include <stdlib.h>
 #include "dot_matrix.h"
-#include "Font_5x7_extended.h"
 
 
 /********************
@@ -167,56 +167,56 @@ void dmDisplay(void)
 ======================================================================*/
 uint8_t dmScroll(void)
 {
-	uint8_t temp, mode;
+	uint8_t newmem[DISP_COLUMNS];
+	uint8_t x, y;
+	uint8_t l, r, t, b;
+	uint8_t live_neighbours;
 
-	mode = display.scroll_mode;
-	temp = mode & 0x0F;										// extract increment
-	if (mode & 0x10)	{ temp = display.base - temp; }		// scrolling backward
-															// We use a dirty trick here:
-															// Temp may underflow at left end of display memory.
-	else				{ temp = display.base + temp; }		// scrolling forward
+	static uint8_t samecnt = 0;
+	uint8_t equal_cols = 0;
 
-	if ((temp + DISP_COLUMNS) > display.cursor ) {			// end of scrolling range reached?
-															// Note: As temp is allowed to underflow, this is 
-															// true at both ends of the display memory.
-		if (display.delay_counter) {
-			display.delay_counter--;
+	for (x = 0; x < DISP_COLUMNS; x++) {
+
+		l = (x == 0) ? (DISP_COLUMNS - 1) : (x - 1);
+		r = (x == (DISP_COLUMNS - 1)) ? 0 : (x + 1);
+
+		newmem[x] = 0;
+
+		for (y = 0; y < DISP_ROWS; y++) {
+
+			t = (y == 0) ? (DISP_ROWS - 1) : (y - 1);
+			b = (y == (DISP_ROWS - 1)) ? 0 : (y + 1);
+
+			live_neighbours =
+				((display.memory[l] & _BV(t)) > 0) +
+				((display.memory[l] & _BV(y)) > 0) +
+				((display.memory[l] & _BV(b)) > 0) +
+				((display.memory[x] & _BV(t)) > 0) +
+				((display.memory[x] & _BV(b)) > 0) +
+				((display.memory[r] & _BV(t)) > 0) +
+				((display.memory[r] & _BV(y)) > 0) +
+				((display.memory[r] & _BV(b)) > 0);
+
+			if (((live_neighbours == 2) && (display.memory[x] & _BV(y)))
+					|| (live_neighbours == 3))
+				newmem[x] |= _BV(y);
+
 		}
-		else {
-			display.delay_counter = display.scroll_delay;					// reload delay counter
-			if (mode & 0x20)		{ display.scroll_mode = mode ^ 0x10; }	// reverse direction
-			else if (mode &0x10)	{ display.base = display.cursor - DISP_COLUMNS; }	// restart from right end
-			else					{ display.base = 0; }					// restart from left end
+	}
+
+	for (x = 0; x < DISP_COLUMNS; x++) {
+		if (display.memory[x] == newmem[x])
+			equal_cols++;
+		display.memory[x] = newmem[x];
+	}
+	if (equal_cols == DISP_COLUMNS) {
+		if (++samecnt == 12) {
+			samecnt = 0;
+			dmWakeUp();
 		}
-		return (1);
 	}
-	else {
-		display.base = temp;
-		return (0);
-	}
+	return 0;
 }
-
-
-/*======================================================================
-	Function:		dmSetScrolling
-	Input:			increment (range 0..15)
-					direction (0 = forward, 1 = backward, 2 = bidirectional)
-					delay     (range 0..255)
-	Output:			none
-	Description:	Set scrolling increment and direction.
-					Delay sets number of scrolling steps to wait at end of scrolling range.
-======================================================================*/
-void dmSetScrolling(uint8_t inc, uint8_t dir, uint8_t delay)
-{
-	inc &= 0x0F;		// limit range
-	dir &= 0x03;		// limit range
-	if (dir != BACKWARD)	{ display.delay_counter = delay; }
-	else					{ display.delay_counter = 0; }
-	swap(dir);
-	display.scroll_mode   = inc | dir;
-	display.scroll_delay  = delay;
-}
-
 
 /*======================================================================
 	Function:		dmClearDisplay
@@ -238,28 +238,6 @@ void dmClearDisplay(void)
 
 
 /*======================================================================
-	Function:		dmDisplayImage
-	Input:			pointer to graphics data in flash memory
-	Output:			none
-	Description:	Copy flash contents to display memory at current cursor position 
-					until the end-of-data marker (0xFF) is reached.
-======================================================================*/
-void dmDisplayImage(const uint8_t* image)
-{
-	uint8_t img_data, pos;
-
-	pos = display.cursor;
-	while(pos < DISP_MAX) {
-		img_data = pgm_read_byte(image++);	// read byte from flash
-		if (img_data == 0xFF) { break; }	// stop if end-of-data has been reached
-		display.memory[pos] = img_data;
-		pos++;
-	}
-	display.cursor = pos;
-}
-
-
-/*======================================================================
 	Function:		dmPrintByte
 	Input:			byte
 	Output:			none
@@ -277,76 +255,10 @@ void dmPrintByte(uint8_t byt)
 	}
 }
 
-
-/*======================================================================
-	Function:		dmPrintChar
-	Input:			character code
-	Output:			none
-	Description:	Print character to display memory at current display cursor.
-======================================================================*/
-void dmPrintChar(uint8_t ch)
+void dmWakeUp()
 {
-	uint8_t  i, pos, char_data;
-	uint16_t fnt;			// pointer into character font
-
-	// mapping of german special characters
-	if (ch == 223) { ch = 138; }		// 'ß'
-	if (ch == 196) { ch = 133; }		// 'Ä'
-	if (ch == 214) { ch = 135; }		// 'Ö'
-	if (ch == 220) { ch = 137; }		// 'Ü'
-	if (ch == 228) { ch = 132; }		// 'ä'
-	if (ch == 246) { ch = 134; }		// 'ö'
-	if (ch == 252) { ch = 136; }		// 'ü'
-	ch -= 32;
-	if (ch > (sizeof(font)/CHAR_WIDTH)) { return; }
-		
-	fnt = ch;
-	fnt = (fnt << 2) + fnt + (uint16_t) &font[0];		// fnt = &font + 5 * ch
-	
-	pos = display.cursor;
-	for (i = 0; i < CHAR_WIDTH; i++) {
-		char_data = pgm_read_byte(fnt++);	// read byte from font
-		if (char_data & 0x80) { break; }	// stop if MSB is set (proportional character width)
-		if (pos < DISP_MAX) {
-			display.memory[pos] = char_data;
-			pos++;
-		}		
+	uint8_t i;
+	for (i = 0; i < DISP_COLUMNS; i++) {
+		display.memory[i] = rand() % 0x7f;
 	}
-	display.cursor = pos;
 }
-
-
-/*======================================================================
-	Function:		dmPrintString
-	Input:			pointer to zero terminated string in flash memory
-	Output:			none
-	Description:	Print string to display memory using the character font.
-					The character '^' is used to shift the character code of
-					the next character by 63 so that e. g. '^A' becomes char(128).
-					To enter a '^' character simply double it: '^^'
-======================================================================*/
-
-// This function was commented out to save flash memory.
-// Uncomment it if you want to use it.
-
-/*
-void dmPrintString(const char* st)
-{
-	uint8_t ch;
-
-	ch = pgm_read_byte(st++);
-	while (ch) {
-		if (ch == '^') {
-			ch = pgm_read_byte(st++);
-			if (ch != '^') {
-				ch += 63;
-			}
-		}
-		dmPrintChar(ch);
-		ch = pgm_read_byte(st++);
-		if (ch) { dmPrintByte(0); }
-	}
-}		
-*/
-
-

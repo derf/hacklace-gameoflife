@@ -36,7 +36,6 @@ Disclaimer:			This software is provided by the copyright holder "as is" and any
 #include <util/delay.h>
 #include "config.h"
 #include "dot_matrix.h"
-#include "animations.h"
 
 
 /*********
@@ -55,8 +54,9 @@ FUSES =
  * global variables *
  ********************/
 
-uint8_t scroll_speed = 8;					// scrolling speed (0 = fastest)
+uint8_t scroll_speed = 96;					// scrolling speed (0 = fastest)
 volatile uint8_t button = PB_ACK;			// button event
+volatile uint8_t scroll_enabled = 0;
 //uint8_t* msg_ptr = (uint8_t*) messages;		// pointer to next message in EEPROM
 uint8_t* msg_ptr;							// pointer to next message in EEPROM
 uint8_t* ee_write_ptr = (uint8_t*) messages;
@@ -122,106 +122,6 @@ void InitHardware(void)
 	OCR0B = OCR0B_CYCLE_TIME;
 	TIMSK |= (1<<OCIE0B)|(1<<OCIE0A);
 	
-	// serial interface
-	// Note: Speed of the serial interface must not be higher than 2400 Baud.
-	// This leaves enough time for the EEPROM write operation to complete before 
-	// the next byte arrives.
-	UBRRL = 103;						// 2400 baud
-//	UBRRL = 207;						// 1200 baud
-	UBRRH = 0;
-	UCSRB = (1<<RXCIE)|(1<<RXEN);		// enable receiver, enable RX interrupt
-	UCSRC = (3<<UCSZ0);					// async USART, 8 data bits, no parity, 1 stop bit
-}
-
-
-/*======================================================================
-	Function:		SetMode
-	Input:			mode byte
-	Output:			none
-	Description:	Set display parameters.
-					The mode byte is interpreted as follows:
-					Bit 7:		reverse scrolling direction (0 = no, always scroll forward, 1 = yes, bidirectional scrolling)
-					Bit 6..4:	delay between scrolling repetitions (0 = shortest, 7 = longest)
-					Bit 3:		scrolling increment (cleared = +1 (for texts), set = +5 (for animations))
-					Bit 2..0:	scrolling speed (1 = slowest, 7 = fastest)
-======================================================================*/
-void SetMode(uint8_t mode)
-{
-	uint8_t inc, dir, dly, spd;
-
-	if (mode & 0x08)	{ inc = 5; }
-		else			{ inc = 1; }
-	if (mode & 0x80)	{ dir = BIDIRECTIONAL; }
-		else			{ dir = FORWARD; }
-	spd = mode & 0x07;
-	dly = swap(mode) & 0x07;
-	dmSetScrolling(inc, dir, pgm_read_byte(&dly_conv[dly]));
-	scroll_speed = pgm_read_byte(&spd_conv[spd]);
-}		
-
-
-/*======================================================================
-	Function:		DisplayMessage
-	Input:			pointer to zero terminated message data in EEPROM memory
-	Output:			pointer to next message
-	Description:	Show a message (i. e. text or animation) on the display.
-
-					Escape characters:
-
-					Character '^' is used to access special characters by 
-					shifting the character code of the next character by 96 
-					so that e. g. '^A' becomes char(161).
-					To enter a '^' character simply double it: '^^'
-
-					Character '~' followed by an upper case letter is used
-					to insert (animation) data from flash.
-					
-					The character 0xFF is used to enter direct mode in which 
-					the following bytes are directly written to the display 
-					memory without being decoded using the character font.
-					Direct mode is ended by 0xFF.
-======================================================================*/
-uint8_t* DisplayMessage(uint8_t* ee_adr)
-{
-	uint8_t ch;
-
-	SetMode(eeprom_read_byte(ee_adr));
-	ee_adr++;
-	dmClearDisplay();
-
-	ch = eeprom_read_byte(ee_adr++);
-	while (ch) {
-		if (ch == '~') {					// animation
-			ch = eeprom_read_byte(ee_adr++);
-			if (ch != '~') {
-				ch -= 'A';
-				if (ch < ANIMATION_COUNT) {
-					dmDisplayImage((const uint8_t*)pgm_read_word(&animation[ch]));
-				}				
-			}
-		}
-		else if (ch == 0xFF) {				// direct mode
-			ch = eeprom_read_byte(ee_adr++);
-			while (ch != 0xFF) {
-				dmPrintByte(ch);
-				ch = eeprom_read_byte(ee_adr++);
-			}
-		}
-		else {								// character
-			if (ch == '^') {				// special character
-				ch = eeprom_read_byte(ee_adr++);
-				if (ch != '^') {
-					ch += 63;
-				}
-			}
-			dmPrintChar(ch);
-		}
-		ch = eeprom_read_byte(ee_adr++);
-		if (ch) { dmPrintByte(0); }			// print a narrow space except for the last character					
-	}
-	ch = eeprom_read_byte(ee_adr);			// read mode byte of next message
-	if (ch)		{ return(ee_adr); }
-		else	{ return((uint8_t*) messages); }	// restart all-over if mode byte is 0
 }
 
 
@@ -234,6 +134,7 @@ uint8_t* DisplayMessage(uint8_t* ee_adr)
 ======================================================================*/
 void GoToSleep(void)
 {
+	scroll_enabled = 0;
 	dmClearDisplay();
 	_delay_ms(1000);
 	GIFR = (1<<PCIF2);				// clear interrupt flag
@@ -242,9 +143,9 @@ void GoToSleep(void)
 	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 	sleep_mode();
 	GIMSK = 0;						// disable all external interrupts (including pin change)
-	dmPrintChar(131);				// happy smiley
+	dmWakeUp();
 	_delay_ms(500);
-	msg_ptr = DisplayMessage((uint8_t*) messages);
+	scroll_enabled = 1;
 }
 
 
@@ -264,14 +165,11 @@ int main(void)
 	while(1)
 	{
 		if (button == PB_RELEASE) {			// short button press
-			msg_ptr = DisplayMessage(msg_ptr);
 			button |= PB_ACK;
 		}
 		
 		if (button == PB_LONGPRESS) {		// button pressed for some seconds
 			dmClearDisplay();
-			dmPrintChar(130);				// sad smiley
-			_delay_ms(500);
 			GoToSleep();
 			button |= PB_ACK;
 		}
@@ -307,7 +205,8 @@ ISR(TIMER0_COMPB_vect)
 	}
 	else {
 		scroll_timer = scroll_speed;		// restart timer
-		dmScroll();							// do a scrolling step
+		if (scroll_enabled)
+			dmScroll();						// do a scrolling step
 	}
 	
 	// push button sampling
@@ -342,84 +241,3 @@ ISR(PCINT_D_vect)
 // pin change interrupt (for wake-up)
 {
 }
-
-
-
-ISR(USART0_RX_vect)
-{
-	static uint8_t state = IDLE;
-	static uint8_t val;
-	uint8_t ch;
-
-	if (UCSRA & (1<<FE)) { return; }	// framing error? -> return
-	ch = UDR;							// read received character
-	if (ch == 27) { state = RESET; }	// <ESC> resets the state machine
-	if (state >= EE_NORMAL) {
-//	if (state >= IDLE) {
-		dmClearDisplay();
-		dmPrintChar(ch);
-	}	
-
-	switch (state) {
-		case IDLE:
-			if (ch == AUTH1_CHAR)	{ state = AUTH; }
-			else					{ state = IDLE; }
-			break;
-		case AUTH:
-			if (ch == EE_AUTH2_CHAR)	{ state = EE_NORMAL; }
-			else if (ch == DISP_AUTH2_CHAR)	{ state = DISP_SET_MODE; }
-			else					{ state = IDLE; }
-			break;
-		case RESET:
-			msg_ptr = (uint8_t*) messages;
-			ee_write_ptr = (uint8_t*) messages;
-			dmClearDisplay();
-			dmPrintChar(129);						// show logo
-			state = IDLE;
-			break;
-		case DISP_SET_MODE:
-			dmClearDisplay();
-			SetMode(ch);
-			state = DISP_CHAR;
-			break;
-		case DISP_CHAR:
-			if ((ch == 13) || (ch == 10)) {	dmClearDisplay(); }		// chr(13) = <CR>, chr(10) = <LF>
-			else { dmPrintChar(ch); dmPrintByte(0); }
-			break;
-		case EE_NORMAL:
-			if (ch == '^') { state = EE_SPECIAL_CHAR; }
-			else if (ch == '$') { val = 0;  state = EE_HEX_CODE; }
-			else if ((ch == 13) || (ch == 10)) {	// chr(13) = <CR>, chr(10) = <LF>
-				eeprom_write_byte(ee_write_ptr++, 0);
-			}
-			else if (ch >= ' ') {					// ignore non-printing characters
-				eeprom_write_byte(ee_write_ptr++, ch);
-			}
-			break;
-		case EE_SPECIAL_CHAR:
-			eeprom_write_byte(ee_write_ptr++, ch+63);
-			state = EE_NORMAL;
-			break;
-		case EE_HEX_CODE:
-			ch -= '0';
-			if (ch >= 17) { ch -= 7; }
-			if (ch > 15) {							// any character below '0' or above 'F' terminates hex input
-				eeprom_write_byte(ee_write_ptr++, val);
-				state = EE_NORMAL;
-			}
-			else { val <<= 4;  val += ch; }
-			break;
-	}
-}
-
-
-/*
-ISR(TIMER1_COMPA_vect)
-{
-}
-
-
-ISR(TIMER1_COMPB_vect)
-{
-}
-*/
