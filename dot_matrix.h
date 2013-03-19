@@ -41,7 +41,7 @@ Disclaimer:			This software is provided by the copyright holder "as is" and any
 //#define DOT_MATRIX_TYPE		HDSP5403
 
 // display memory
-#define DISP_MAX			200			// size of display memory in bytes (1 byte = 1 column, range 5..240)
+#define DISP_MAX			5			// size of display memory in bytes (1 byte = 1 column, range 5..240)
 
 // scrolling directions
 #define FORWARD				0			// text moves from right to left

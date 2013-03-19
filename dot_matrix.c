@@ -258,7 +258,11 @@ void dmPrintByte(uint8_t byt)
 void dmWakeUp()
 {
 	uint8_t i;
+
+	display.base  = 0;
+	display.cursor = 0;
+
 	for (i = 0; i < DISP_COLUMNS; i++) {
-		display.memory[i] = rand() % 0x7f;
+		display.memory[i] = rand() % 0x80;
 	}
 }

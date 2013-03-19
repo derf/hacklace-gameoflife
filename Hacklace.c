@@ -54,7 +54,7 @@ FUSES =
  * global variables *
  ********************/
 
-uint8_t scroll_speed = 96;					// scrolling speed (0 = fastest)
+uint8_t scroll_speed = 14;					// scrolling speed (0 = fastest)
 volatile uint8_t button = PB_ACK;			// button event
 volatile uint8_t scroll_enabled = 0;
 //uint8_t* msg_ptr = (uint8_t*) messages;		// pointer to next message in EEPROM
@@ -157,6 +157,7 @@ int main(void)
 {
 	InitHardware();
 	dmInit();
+	dmWakeUp();
 	sei();									// enable interrupts
 
 	GoToSleep();
@@ -205,8 +206,13 @@ ISR(TIMER0_COMPB_vect)
 	}
 	else {
 		scroll_timer = scroll_speed;		// restart timer
-		if (scroll_enabled)
+		if (scroll_enabled) {
+			TIMSK &= ~_BV(OCIE0B);
+			sei();
 			dmScroll();						// do a scrolling step
+			cli();
+			TIMSK |= _BV(OCIE0B);
+		}
 	}
 	
 	// push button sampling
