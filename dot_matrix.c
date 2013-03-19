@@ -173,6 +173,7 @@ uint8_t dmScroll(void)
 	uint8_t live_neighbours;
 
 	static uint8_t samecnt = 0;
+	static uint16_t animcnt = 0;
 	uint8_t equal_cols = 0;
 
 	for (x = 0; x < DISP_COLUMNS; x++) {
@@ -212,8 +213,13 @@ uint8_t dmScroll(void)
 	if (equal_cols == DISP_COLUMNS) {
 		if (++samecnt == 12) {
 			samecnt = 0;
+			animcnt = 0;
 			dmWakeUp();
 		}
+	}
+	if (++animcnt == 1024) {
+		animcnt = 0;
+		dmWakeUp();
 	}
 	return 0;
 }
