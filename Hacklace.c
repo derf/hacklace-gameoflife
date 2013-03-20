@@ -28,6 +28,7 @@ Disclaimer:			This software is provided by the copyright holder "as is" and any
 **********************************************************************************/
 
 #include <inttypes.h>
+#include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -57,27 +58,8 @@ FUSES =
 uint8_t scroll_speed = 14;					// scrolling speed (0 = fastest)
 volatile uint8_t button = PB_ACK;			// button event
 volatile uint8_t scroll_enabled = 0;
-//uint8_t* msg_ptr = (uint8_t*) messages;		// pointer to next message in EEPROM
-uint8_t* msg_ptr;							// pointer to next message in EEPROM
-uint8_t* ee_write_ptr = (uint8_t*) messages;
 
-
-/*************
- * constants *
- *************/
-// serial input states
-#define IDLE			0
-#define AUTH			1		// first authentication byte received
-#define RESET			2
-#define DISP_SET_MODE	3
-#define DISP_CHAR		4
-#define EE_NORMAL		5
-#define EE_SPECIAL_CHAR	6
-#define EE_HEX_CODE		7
-
-#define AUTH1_CHAR		'H'
-#define EE_AUTH2_CHAR	'L'		// authentication for entering EEPROM mode
-#define DISP_AUTH2_CHAR	'D'		// authentication for entering DISPLAY mode
+unsigned int seed EEMEM;
 
 
 /**********
@@ -121,6 +103,8 @@ void InitHardware(void)
 	OCR0A = OCR0A_CYCLE_TIME;
 	OCR0B = OCR0B_CYCLE_TIME;
 	TIMSK |= (1<<OCIE0B)|(1<<OCIE0A);
+
+	srand(eeprom_read_word(&seed));
 	
 }
 
@@ -135,6 +119,7 @@ void InitHardware(void)
 void GoToSleep(void)
 {
 	scroll_enabled = 0;
+	eeprom_write_word(&seed, rand());
 	dmClearDisplay();
 	_delay_ms(1000);
 	GIFR = (1<<PCIF2);				// clear interrupt flag
