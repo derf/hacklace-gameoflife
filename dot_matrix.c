@@ -217,7 +217,7 @@ uint8_t dmScroll(void)
 			dmWakeUp();
 		}
 	}
-	if (++animcnt == 2048) {
+	if (++animcnt == 1024) {
 		animcnt = 0;
 		dmWakeUp();
 	}

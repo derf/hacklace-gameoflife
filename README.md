@@ -6,7 +6,7 @@ applying the rules, displaying the result after each step.
 
 If the world becomes a still life, it will be replaced by a random new one
 after 32 cycles.
-Additionally, any world will be replaced by a new one after 2048 cycles. This
+Additionally, any world will be replaced by a new one after 1024 cycles. This
 makes sure that no oscillators can persist.
 
 Note that the game is constrained to the 5x7 field of the display. Bot the left
