@@ -5,8 +5,8 @@
 
 /**********************************************************************************
 
-Description:		Functions to access a dot matrix display.
-Author:				Frank Andre
+Description:		Functions to access a dot matrix display and render th game of life
+Author:				Frank Andre, game of life patch by Daniel Friesel
 License:			This software is distributed under the creative commons license
 					CC-BY-NC-SA.
 Disclaimer:			This software is provided by the copyright holder "as is" and any 

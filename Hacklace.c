@@ -9,7 +9,7 @@ Title:				Hacklace - A necklace for hackers
 
 Hardware:			Hacklace-Board with ATtiny4313 running at 4 MHz and a
 					5 x 7 dot matrix display.
-Author:				Frank Andre
+Author:				Frank Andre, game of life patch by Daniel Friesel
 License:			This software is distributed under the creative commons license
 					CC-BY-NC-SA.
 Disclaimer:			This software is provided by the copyright holder "as is" and any 
