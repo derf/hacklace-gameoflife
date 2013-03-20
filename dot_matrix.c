@@ -211,13 +211,13 @@ uint8_t dmScroll(void)
 		display.memory[x] = newmem[x];
 	}
 	if (equal_cols == DISP_COLUMNS) {
-		if (++samecnt == 12) {
+		if (++samecnt == 32) {
 			samecnt = 0;
 			animcnt = 0;
 			dmWakeUp();
 		}
 	}
-	if (++animcnt == 1024) {
+	if (++animcnt == 2048) {
 		animcnt = 0;
 		dmWakeUp();
 	}
