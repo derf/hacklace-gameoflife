@@ -242,25 +242,6 @@ void dmClearDisplay(void)
 	}
 }
 
-
-/*======================================================================
-	Function:		dmPrintByte
-	Input:			byte
-	Output:			none
-	Description:	Write byte directly to the display memory.
-======================================================================*/
-void dmPrintByte(uint8_t byt)
-{
-	uint8_t pos;
-
-	pos = display.cursor;
-	if (pos < DISP_MAX) { 
-		display.memory[pos] = byt;
-		pos++;
-		display.cursor = pos;
-	}
-}
-
 void dmWakeUp()
 {
 	uint8_t i;
